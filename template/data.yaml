@@ -1,0 +1,11 @@
+# Sveltos will instantiate this template before deploying to matching managed cluster
+# Sveltos will get the ClusterAPI Cluster instance representing the cluster in the
+# managed cluster, and use that resource data to instintiate this ConfigMap before
+# deploying it
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Cluster.metadata.name }}
+  namespace: default
+data:
+  controlPlaneEndpoint: "{{ .Cluster.spec.controlPlaneEndpoint.host }}:{{ .Cluster.spec.controlPlaneEndpoint.port }}"

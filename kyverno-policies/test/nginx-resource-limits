@@ -1,0 +1,43 @@
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: nginx-resource-limits
+  annotations:
+    policies.kyverno.io/title: Enforce Nginx Resource Limits
+    policies.kyverno.io/category: Resource Management
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Deployment
+    policies.kyverno.io/minversion: 1.6.0
+    policies.kyverno.io/description: >-
+      This policy ensures that all Nginx deployments have specific CPU and memory
+      resource requests and limits set. This is important to prevent a single
+      deployment from consuming all available resources and to ensure Quality of
+      Service (QoS) for the deployment.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: check-nginx-resources
+      match:
+        resources:
+          kinds:
+            - Deployment
+          selector:
+            matchLabels:
+              app: nginx
+      validate:
+        message: "CPU and memory resource limits and requests are required for Nginx containers."
+        pattern:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: "nginx"
+                    resources:
+                      requests:
+                        memory: "64Mi"
+                        cpu: "100m"
+                      limits:
+                        memory: "128Mi"
+                        cpu: "200m"
